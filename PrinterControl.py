@@ -11,7 +11,7 @@ def get_connection_status():
 
 
 def connect_to_printer():
-    command_data = {'command': 'connect', 'printerProfile': 'prusa_i3_mk2'}
+    command_data = {'command': 'connect', 'baudrate': 115200, 'printerProfile': 'prusa_i3_mk2'}
     r = requests.post(base_url + 'connection', json=command_data, params=apikey)
     return r
 
@@ -33,6 +33,10 @@ def slice_and_select(filename):
 
 def get_print_job_info():
     return requests.get(base_url + 'job', params=apikey).json()
+
+def start_print_job():
+    start_command = {'command': 'start'}
+    return requests.post(base_url + 'job', json=start_command, params=apikey)
 
 
 def print_stl_file(filename):
@@ -61,12 +65,17 @@ def print_stl_file(filename):
     slice_and_select(filename)
     print('Preparing file for printing; please wait...')
 
-    time.sleep(20)
-
-    # Retrieve print info
+    # Retrieve print info once slicing is complete
     print_job_info = get_print_job_info()
+    while(print_job_info['job']['estimatedPrintTime'] == None):
+        time.sleep(10)
+        print_job_info = get_print_job_info()
     print('Estimated print time: ' + str(print_job_info['job']['estimatedPrintTime'] / 60) + ' minutes')
 
+    # Start print job
+    start_print_job()
+    print('Printing started!')
 
 
-print_stl_file('brailleHelloWorld_thin.stl')
+
+#print_stl_file('brailleHelloWorld_thin.stl')
