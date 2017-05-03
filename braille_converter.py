@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
-import sys
-
 class Braille_Converter(object):
     def __init__(self):
-        # Dictionary for single Braille characters
+        """ Constructor for the Braille_Converter. """
+
+        # Dictionary for single lower-case Braille characters.
         self.lower_case_dict = {'_name': 'Lower-case Dictionary',
                         'a': (True, False, False, False, False, False),
                         'b': (True, True, False, False, False, False),
@@ -33,6 +33,9 @@ class Braille_Converter(object):
                         'y': (True, False, True, True, True, True),
                         'z': (True, False, True, False, True, True)}
 
+        # Dictionary for single upper-case Braille characters. Assumes that the
+        #     captial modifier is used before directly converting to this
+        #     dictionary.
         self.upper_case_dict = {'_name': 'Upper-case Dictionary',
                         'A': (True, False, False, False, False, False),
                         'B': (True, True, False, False, False, False),
@@ -61,6 +64,9 @@ class Braille_Converter(object):
                         'Y': (True, False, True, True, True, True),
                         'Z': (True, False, True, False, True, True)}
 
+        # Dicitonary for single number Braille characters. Assumes that the
+        #     number modifier is used before directly converting to this
+        #     dictionary.
         self.number_dict = {'_name': 'Number Dictionary',
                         '1': (True, False, False, False, False, False),
                         '2': (True, True, False, False, False, False),
@@ -73,6 +79,8 @@ class Braille_Converter(object):
                         '9': (False, True, False, True, False, False),
                         '0': (False, True, False, True, True, False)}
 
+        # Dictionary for punctuation Braille characters. Punctuation that is
+        #      context sensitive has another level of dictionary to distiguish.
         self.punc_dict = {'_name': 'Punctuation Dictionary',
                         ' ': (False, False, False, False, False, False),
                         '*': [(False, False, True, False, True, False), (False, False, True, False, True, False)],
@@ -102,53 +110,76 @@ class Braille_Converter(object):
                               'period': (False, True, False, False, True, True),
                               'decimal': (False, False, False, True, False, True)}}
 
+        # Dictionary for Braille modifiers.
         self.mod_dict = {'_name': 'Modifier Dictionary',
                          'upper-case': (False, False, False, False, False, True),
                          'multi-upper-case': [(False, False, False, False, False, True), (False, False, False, False, False, True)],
                          'number': (False, False, True, True, True, True)}
 
+        # Member that holds the converted Braille characters so that any
+        #      method can access this list.
         self.out = list()
 
-    def is_upper(self, in_word):
-        for char in in_word:
-            try:
-                defined = self.upper_case_dict[char]
-            except KeyError:
-                try:
-                    defined = self.punc_dict[char]
-                except KeyError:
-                    return False
-                else:
-                    continue
-        return True
-
-    def is_number(self, in_word):
-        for char in in_word:
-            try:
-                defined = self.number_dict[char]
-            except KeyError:
-                try:
-                    defined = self.punc_dict[char]
-                except KeyError:
-                    return False
-                else:
-                    continue
-        return True
-
     def is_punc(self, in_word):
+        """ Return boolean indicating whether in_word is all punctuation.
+
+        Keyword arguments:
+        in_word -- string that method tests
+        """
         for char in in_word:
             try:
                 defined = self.punc_dict[char]
             except KeyError:
-                try:
-                    defined = self.punc_dict[char]
-                except KeyError:
-                    return False
-                else:
+                return False
+            else:
+                continue
+        return True
+
+    def is_upper(self, in_word):
+        """ Return boolean indicating whether in_word is all upper-case.
+
+        Method ignores punctuation.
+
+        Keyword arguments:
+        in_word -- string that method tests
+        """
+        for char in in_word:
+            try:
+                defined = self.upper_case_dict[char]
+            except KeyError:
+                if self.is_punc(char):
                     continue
+                else:
+                    return False
+        return True
+
+    def is_number(self, in_word):
+        """ Return boolean indicating whether in_word is all numbers.
+
+        Method ignores punctuation.
+
+        Keyword arguments:
+        in_word -- string that method tests
+        """
+        for char in in_word:
+            try:
+                defined = self.number_dict[char]
+            except KeyError:
+                if self.is_punc(char):
+                    continue
+                else:
+                    return False
         return True
 
     def append_def(self, char, dctnry, word="", index=None):
+        """ Append the definition for char in dctnry to self.out
+
+        Keyword arguments:
+        char -- key to look for in dctnry
+        dctnry -- dictionary to look in
+        word -- word that the char appears inside of (for context)
+        index -- where in the word that the char appears inside of
+        """
         if type(dctnry[char]) is list:
             for cell in dctnry[char]:
                 self.out.append(cell)
@@ -170,7 +201,7 @@ class Braille_Converter(object):
                 elif index == (len(word) - 1) or self.is_punc(word[index+1:]):
                     self.append_def('double-quote-right', self.punc_dict['"'])
                 else:
-                    print("[ ] Found a badly placed '\"' in: " + word)
+                    print("[ ] Found a badly placed ' \" ' in: " + word)
                     self.out.append('BAD DOUBLE QUOTE')
 
             elif char == '-':
@@ -228,9 +259,3 @@ class Braille_Converter(object):
                     index = index + 1
 
             self.append_def(' ', self.punc_dict)
-
-""" TESTING SCRIPT """
-
-converter = Braille_Converter()
-
-converter.grade_1_convert('"This is NUTS, man...", said George as 150.123 rocks rolled down the hill.')
