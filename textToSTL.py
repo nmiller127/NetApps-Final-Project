@@ -455,6 +455,7 @@ def textToSTL(text):
 #####################################################
 #### TESTING
 #####################################################
-
+'''
 stlFile = textToSTL('The quick brown fox jumped over the lazy dog.')
 print(stlFile)
+'''
