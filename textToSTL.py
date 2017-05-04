@@ -87,7 +87,7 @@ class Braille_Converter(object):
                         ')': (False, True, True, False, True, True),
                         '?': (False, True, True, False, False, True),
                         ';': (False, True, True, False, False, False),
-                        '\n': '\n',
+                        '\n': [(False, False, False, False, False, False), (False, False, False, False, False, False)],
                         "'": {'_name': '[ \' ] Dictionary',
                               'apostrophe': (False, False, True, False, False, False),
                               'single-quote-left': [(False, False, False, False, False, True), (False, True, True, False, False, True)],
@@ -187,7 +187,7 @@ class Braille_Converter(object):
 
         else:
             self.out.append(dctnry[char])
-            print("[x] Added cell [" + char + "] from " + dctnry['_name'])
+            #print("[x] Added cell [" + char + "] from " + dctnry['_name'])
 
     def grade_1_convert(self, in_text):
         words = in_text.split(' ')
@@ -265,10 +265,10 @@ def fixSpacing(brailleList, charsPerLine, linesPerSheet):
     space = (False, False, False, False, False, False)
     newBrailleList = list()
     wordArray = list()
-    print("Fixing spacing")
+    print("Fixing spacing...")
 
     x = 0
-    #Break the list up by spaces. wordArray is the array of words in the sentence
+    #Break the list up by spaces and newlines. wordArray is the array of words in the sentence
     while (x < len(brailleList)):
         word = list()
         nextLetter = brailleList[x]
@@ -278,7 +278,7 @@ def fixSpacing(brailleList, charsPerLine, linesPerSheet):
             nextLetter = brailleList[x]
         word.append(space)
         wordArray.append(word)
-        print("Word #", len(wordArray), ": ", len(word))
+        #print("Word #", len(wordArray), ": ", len(word))
         x = x + 1
 
         if (x == len(brailleList)):
@@ -309,7 +309,7 @@ def fixSpacing(brailleList, charsPerLine, linesPerSheet):
             for x in range(0, len(wordArray[word])):
                 newBrailleList.append(wordArray[word][x])
             currentPosition = currentPosition + len(wordArray[word])
-    return newBrailleList
+    return newBrailleList, currentLine
 
 def createBase(charNum, lineNum):
     BASE_X_WIDTH = lineNum * CHAR_Y  # MAX = 234mm
@@ -414,7 +414,7 @@ def brailleToSTL(brailleList):
     stlFileName = 'braille_translation.stl'
     charsNeeded, linesNeeded = getDimensions(brailleList) #get the size of the base
 
-    brailleList = fixSpacing(brailleList, 30, 23)
+    brailleList, linesNeeded = fixSpacing(brailleList, 30, 23)
 
     #Add funtion to take care of spacing of words
     length = len(brailleList)
@@ -438,7 +438,7 @@ def brailleToSTL(brailleList):
     for line in range(0, linesNeeded):
         for letter in range(0, charsNeeded):
             letterList.append(makeLetter(dot, (w2, l2, h2), brailleList[letter + (charsNeeded * line)], letter, line))
-            print("Line: ", line, " Letter: ", letter)
+            #print("Line: ", line, " Letter: ", letter)
     print("Combining meshes...")
     combined = mesh.Mesh(numpy.concatenate([base.data] + [dot.data for letter in letterList for dot in letter]))
 
@@ -446,6 +446,7 @@ def brailleToSTL(brailleList):
     return stlFileName
 
 def textToSTL(text):
+    print("Translating text...")
     converter = Braille_Converter()
 
     # converter.grade_1_convert('"This is NUTS, man...", said George as 150.123 rocks rolled down the hill.')
@@ -455,7 +456,6 @@ def textToSTL(text):
 #####################################################
 #### TESTING
 #####################################################
-'''
-stlFile = textToSTL('The quick brown fox jumped over the lazy dog.')
-print(stlFile)
-'''
+
+#stlFile = textToSTL("Controllers received signals from Cassini early Thursday after it made its first pass between Saturn's cloud tops and the inner edge of the planet's rings. The spacecraft was out of radio contact with Earth during the close approach. Cassini is now in the \"Grand Finale\" phase of its mission, with 22 close approaches planned before the mission ends with a dive into the planet's atmosphere in September. See more at: spacenews.com")
+#print("File created: ",stlFile)
