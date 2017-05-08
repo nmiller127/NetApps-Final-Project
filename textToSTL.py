@@ -188,7 +188,7 @@ class Braille_Converter(object):
 
         else:
             self.out.append(dctnry[char])
-            #print("[x] Added cell [" + char + "] from " + dctnry['_name'])
+            print("[x] Added cell [" + char + "] from " + dctnry['_name'])
 
     def grade_1_convert(self, in_text):
         words = in_text.split(' ')
@@ -448,6 +448,7 @@ def brailleToSTL(brailleList):
 
 def textToSTL(text):
     print("Translating text...")
+    print("Text Received: " + text)
     converter = Braille_Converter()
 
     # converter.grade_1_convert('"This is NUTS, man...", said George as 150.123 rocks rolled down the hill.')
@@ -458,5 +459,5 @@ def textToSTL(text):
 #### TESTING
 #####################################################
 
-stlFile = textToSTL("Controllers received signals from Cassini early Thursday after it made its first pass between Saturn's cloud tops and the inner edge of the planet's rings. The spacecraft was out of radio contact with Earth during the close approach. Cassini is now in the \"Grand Finale\" phase of its mission, with 22 close approaches planned before the mission ends with a dive into the planet's atmosphere in September. See more at: spacenews.com")
+stlFile = textToSTL("H")
 #print("File created: ",stlFile)
