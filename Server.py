@@ -8,6 +8,7 @@ from PIL import Image
 
 from threading import Thread
 from threading import Lock
+import traceback
 
 class Central_Server:
     def __init__(self):
@@ -98,10 +99,12 @@ class Central_Server:
         try:
             filename = translator.textToSTL(self.processed_text)
         except:
-            print("[ ] Something went wrong with the conversion.")
             self.processed_text_lock.release()
+            print("[ ] Something went wrong with the conversion:")
+            traceback.print_exc()
+            print("[x] Server will continue running despite this error...")
             return
-            
+
         print("[x] Completed conversion.")
 
         # This thread is done with text, so release lock
@@ -111,7 +114,9 @@ class Central_Server:
         try:
             octopi.print_stl_file(filename)
         except:
-            print("[ ] Something went wrong with the printing.")
+            print("[ ] Something went wrong with the printing:")
+            traceback.print_exc()
+            print("[x] Server will continue running despite this error...")
             return
         print("[x] Sent instruction to OctoPi to begin 3D print.")
 
@@ -178,7 +183,9 @@ class Central_Server:
             except KeyboardInterrupt:
                 break
             except:
-                print("INSTRUCTION: FALSE")
+                print("Something went wrong in main loop:")
+                traceback.print_exc()
+                print("Server will continue to run despite this error...")
                 client.close()
 
 ##############################
