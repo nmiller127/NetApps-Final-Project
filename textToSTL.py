@@ -310,6 +310,8 @@ def fixSpacing(brailleList, charsPerLine, linesPerSheet):
             for x in range(0, len(wordArray[word])):
                 newBrailleList.append(wordArray[word][x])
             currentPosition = currentPosition + len(wordArray[word])
+    if (currentLine == 0):
+        currentLine = linesPerSheet
     return newBrailleList, currentLine
 
 def createBase(charNum, lineNum):
@@ -415,7 +417,7 @@ def brailleToSTL(brailleList):
     stlFileName = 'braille_translation.stl'
     charsNeeded, linesNeeded = getDimensions(brailleList) #get the size of the base
 
-    brailleList, linesNeeded = fixSpacing(brailleList, 30, 23)
+    brailleList, linesNeeded = fixSpacing(brailleList, charsNeeded, linesNeeded)
 
     #Add funtion to take care of spacing of words
     length = len(brailleList)
