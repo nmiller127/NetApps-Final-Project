@@ -249,7 +249,6 @@ def getDimensions(brailleList):
     linesPerSheet = floor(MAX_Y / CHAR_Y)   #the number of lines that can fit on a sheet using the given max size and tile dimensions
     totalChars = charsPerLine * linesPerSheet #The maximum number of characters that can fit on a sheet
     chars = 1
-    lines = 1
     #print("Chars per line = ", charsPerLine, " Lines Per Sheet = ", linesPerSheet)
     messageLength = len(brailleList) #The length of the input string
     #print("String Length: ", messageLength)
@@ -258,8 +257,7 @@ def getDimensions(brailleList):
         chars = messageLength
     else:
         chars = charsPerLine
-        lines = ceil(messageLength/charsPerLine)
-    return chars, lines
+    return chars, linesPerSheet
 
 # Use the dimensions to
 def fixSpacing(brailleList, charsPerLine, linesPerSheet):
@@ -310,8 +308,6 @@ def fixSpacing(brailleList, charsPerLine, linesPerSheet):
             for x in range(0, len(wordArray[word])):
                 newBrailleList.append(wordArray[word][x])
             currentPosition = currentPosition + len(wordArray[word])
-    if (currentLine == 0):
-        currentLine = linesPerSheet
     return newBrailleList, currentLine
 
 def createBase(charNum, lineNum):
@@ -415,9 +411,9 @@ def makeLetter(obj, dims, letter, charOffset, lineOffset):
 
 def brailleToSTL(brailleList):
     stlFileName = 'braille_translation.stl'
-    charsNeeded, linesNeeded = getDimensions(brailleList) #get the size of the base
+    charsNeeded, linesPerSheet = getDimensions(brailleList) #get the size of the base
 
-    brailleList, linesNeeded = fixSpacing(brailleList, charsNeeded, linesNeeded)
+    brailleList, linesNeeded = fixSpacing(brailleList, charsNeeded, linesPerSheet)
 
     #Add funtion to take care of spacing of words
     length = len(brailleList)
