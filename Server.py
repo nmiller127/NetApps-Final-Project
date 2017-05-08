@@ -21,7 +21,7 @@ class Central_Server:
         self.__socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Initialize socket
-        self.__socket.bind((self.host, self.port))
+        self.__socket.bind((self.socket_host, self.socket_port))
 
         # Declare member variables and locks to keep them thread safe
         self.image_filename = "image.jpg"
@@ -47,7 +47,7 @@ class Central_Server:
 
         # Read image in from message into new file
         print("[x] Overwriting '" + self.image_filename + "' with received image.")
-        data = client.recv(size) # priming read since 'data' didn't carry over from main loop
+        data = client.recv(self.socket_size) # priming read since 'data' didn't carry over from main loop
         with open(self.image_filename, "bw") as myfile:
             while data:
                 myfile.write(data)
@@ -87,22 +87,32 @@ class Central_Server:
 
         # Replace processed text with text received from Android
         self.processed_text = ""
-        data = client.recv(size) # priming read since 'data' didn't carry over from main loop
+        data = client.recv(self.socket_size) # priming read since 'data' didn't carry over from main loop
         while data:
-            self.processed_text.append(str(data))
-            data = client.recv(size)
+            self.processed_text = self.processed_text + str(data)
+            data = client.recv(self.socket_size)
         client.close()
 
         print("[x] Done receiving confirmed text.")
         print("    Starting text > Braille > STL conversion...")
-        filename = translator.textToSTL(self.processed_text)
+        try:
+            filename = translator.textToSTL(self.processed_text)
+        except:
+            print("[ ] Something went wrong with the conversion.")
+            self.processed_text_lock.release()
+            return
+            
         print("[x] Completed conversion.")
 
         # This thread is done with text, so release lock
         self.processed_text_lock.release()
 
         print("    Starting 3D print...")
-        octopi.print_stl_file(filename)
+        try:
+            octopi.print_stl_file(filename)
+        except:
+            print("[ ] Something went wrong with the printing.")
+            return
         print("[x] Sent instruction to OctoPi to begin 3D print.")
 
     def send_proc_text(self, client):
@@ -157,14 +167,16 @@ class Central_Server:
                 print ("\n\n[x] Received INSTRUCTION: ", data.decode('utf-8'))
 
                 if data.decode('utf-8') == "Send Image":
-                    new_image_process_thread = Thread(target=self.process_image, args=(client))
+                    new_image_process_thread = Thread(target=self.process_image, args=(client,))
                     new_image_process_thread.start()
                 elif data.decode('utf-8') == "Send Text":
-                    new_repace_proc_text_thread = Thread(target=self.replace_proc_text, args=(client))
+                    new_repace_proc_text_thread = Thread(target=self.replace_proc_text, args=(client,))
                     new_repace_proc_text_thread.start()
-                elif data.decode('utf-8') == "Receive Text"
-                    new_send_proc_text_thread = Thread(target=self.send_proc_text, args=(client))
+                elif data.decode('utf-8') == "Receive Text":
+                    new_send_proc_text_thread = Thread(target=self.send_proc_text, args=(client,))
                     new_send_proc_text_thread.start()
+            except KeyboardInterrupt:
+                break
             except:
                 print("INSTRUCTION: FALSE")
                 client.close()

@@ -1,4 +1,5 @@
 import stl, numpy
+#from numpy import stl
 from math import floor, ceil
 from stl import mesh
 
