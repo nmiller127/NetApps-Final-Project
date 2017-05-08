@@ -458,5 +458,5 @@ def textToSTL(text):
 #### TESTING
 #####################################################
 
-#stlFile = textToSTL("Controllers received signals from Cassini early Thursday after it made its first pass between Saturn's cloud tops and the inner edge of the planet's rings. The spacecraft was out of radio contact with Earth during the close approach. Cassini is now in the \"Grand Finale\" phase of its mission, with 22 close approaches planned before the mission ends with a dive into the planet's atmosphere in September. See more at: spacenews.com")
+stlFile = textToSTL("Controllers received signals from Cassini early Thursday after it made its first pass between Saturn's cloud tops and the inner edge of the planet's rings. The spacecraft was out of radio contact with Earth during the close approach. Cassini is now in the \"Grand Finale\" phase of its mission, with 22 close approaches planned before the mission ends with a dive into the planet's atmosphere in September. See more at: spacenews.com")
 #print("File created: ",stlFile)

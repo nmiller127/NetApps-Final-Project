@@ -1,8 +1,8 @@
 import requests
 import time
 
-base_url = 'http://10.0.0.62/api/'
-apikey = {'apikey': 'E5168A6891C24B54919023C4D162B1DA'}
+base_url = 'http://octopi.local/api/'
+apikey = {'apikey': '1DD770EAA4274AAD8CE3E9C3DB04298E'}
 
 
 def get_connection_status():

@@ -90,13 +90,14 @@ class Central_Server:
         self.processed_text = ""
         data = client.recv(self.socket_size) # priming read since 'data' didn't carry over from main loop
         while data:
-            self.processed_text = self.processed_text + str(data)
+            self.processed_text = self.processed_text + data.decode('utf-8')
             data = client.recv(self.socket_size)
         client.close()
 
         print("[x] Done receiving confirmed text.")
         print("    Starting text > Braille > STL conversion...")
         try:
+            print("Processed Text: " + self.processed_text)
             filename = translator.textToSTL(self.processed_text)
         except:
             self.processed_text_lock.release()
