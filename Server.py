@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import textToSTL as translator
 import PrinterControl as octopi
 

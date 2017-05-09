@@ -1,7 +1,0 @@
-The filename (.gcode) must not contain any spe
-
-® printer is not able to display the file on the LCD. If y
-printer will pause automatically. When you reinsert
-choose "Continue" option. Confirm and printing will
-
-7.1 Removing objects from the printer.
